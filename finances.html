@@ -5,73 +5,34 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Finances</title>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Outfit:wght@200;300&display=swap');
 *{margin:0;padding:0;box-sizing:border-box;}
-body{background:#0a0e1e;overflow:hidden;display:flex;align-items:center;justify-content:center;height:100vh;width:100vw;}
-canvas{position:fixed;top:0;left:0;width:100%;height:100%;}
-.overlay{position:fixed;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1;pointer-events:none;}
-.title{font-family:Georgia,'Times New Roman',serif;font-size:clamp(18px,3.5vw,28px);letter-spacing:0.8em;color:#c8b482;text-transform:uppercase;}
-.sub{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:clamp(8px,1.2vw,11px);letter-spacing:0.25em;color:#6b6350;text-transform:uppercase;margin-top:8px;}
+body{background:#0a0b10;overflow:hidden;height:100vh;width:100vw;position:relative;}
+canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;}
+.hex-bg{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);opacity:0.03;z-index:0;}
+.overlay{position:fixed;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1;}
+.title{font-family:'Cormorant Garamond',Georgia,serif;font-size:clamp(20px,4vw,32px);font-weight:300;letter-spacing:0.4em;color:#f0ead6;text-transform:uppercase;}
+.divider{width:60px;height:1px;background:linear-gradient(90deg,transparent,#d4a24e,transparent);margin:12px auto;opacity:0.5;}
+.sub{font-family:'Outfit',sans-serif;font-size:clamp(8px,1.1vw,11px);font-weight:200;letter-spacing:4px;text-transform:uppercase;color:#7a7868;}
 </style>
 </head>
 <body>
-<canvas id="c"></canvas>
+<canvas id="stars"></canvas>
+<svg class="hex-bg" width="600" height="300" viewBox="0 0 600 300"><g id="hexgrid"></g></svg>
 <div class="overlay">
 <div class="title">Finances</div>
+<div class="divider"></div>
 <div class="sub">Every euro tracked, every subscription tamed</div>
 </div>
 <script>
-const canvas=document.getElementById('c'),ctx=canvas.getContext('2d');
-let W,H;
-function resize(){W=canvas.width=window.innerWidth*2;H=canvas.height=window.innerHeight*2;}
-resize();window.addEventListener('resize',resize);
-const rand=(a,b)=>Math.random()*(b-a)+a;
-
-// Seeded random for unique layout
-let seed=77;function sr(){seed=(seed*16807)%2147483647;return(seed-1)/2147483646;}
-
-const stars=[];for(let i=0;i<85;i++)stars.push({x:rand(0,1),y:rand(0,1),r:rand(0.5,2),phase:rand(0,Math.PI*2),speed:rand(0.003,0.015),base:rand(0.1,0.5)});
-
-const hexes=[];const hs=28;
-for(let row=0;row<8;row++){
-for(let col=0;col<5;col++){let x=20+col*(hs*1.75)+(row%2)*(hs*0.875);let y=-5+row*(hs*1.5);if(x<W*0.09&&sr()<0.6)hexes.push({x,y,s:hs});}
-for(let col=0;col<5;col++){let x=W/2-20-col*(hs*1.75)-(row%2)*(hs*0.875);let y=-5+row*(hs*1.5);if(x>W*0.91/2&&sr()<0.6)hexes.push({x,y,s:hs});}}
-
-const frames=[
-{x:18,y:22,w:78,h:60,corner:11},{x:10,y:72,w:55,h:68,corner:9},
-{x:W/2-86,y:18,w:74,h:62,corner:11},{x:W/2-64,y:66,w:54,h:74,corner:9},
-{x:24,y:125,w:52,h:58,corner:9},{x:W/2-78,y:115,w:60,h:65,corner:10}];
-
-const paths=[];
-frames.forEach(f=>{
-paths.push({x1:f.x,y1:f.y,x2:f.x+f.w,y2:f.y,phase:rand(0,Math.PI*2),speed:rand(0.008,0.02)});
-paths.push({x1:f.x+f.w,y1:f.y,x2:f.x+f.w,y2:f.y+f.h,phase:rand(0,Math.PI*2),speed:rand(0.008,0.02)});
-paths.push({x1:f.x+f.w,y1:f.y+f.h,x2:f.x,y2:f.y+f.h,phase:rand(0,Math.PI*2),speed:rand(0.008,0.02)});
-paths.push({x1:f.x,y1:f.y+f.h,x2:f.x,y2:f.y,phase:rand(0,Math.PI*2),speed:rand(0.008,0.02)});});
-
-const connectors=[];
-for(let i=0;i<5;i++){let side=sr()<0.5;let x1,x2,y=rand(18,H/2-18);
-if(side){x1=rand(50,105);x2=x1+rand(20,60);}else{x2=W/2-rand(50,105);x1=x2-rand(20,60);}
-connectors.push({x1,y1:y,x2,y2:y});
-paths.push({x1,y1:y,x2,y2:y,phase:rand(0,Math.PI*2),speed:rand(0.01,0.025)});}
-
-function drawHex(cx,cy,size,alpha){ctx.beginPath();for(let i=0;i<6;i++){let a=Math.PI/3*i-Math.PI/6;let px=cx+size*Math.cos(a);let py=cy+size*Math.sin(a);i===0?ctx.moveTo(px,py):ctx.lineTo(px,py);}ctx.closePath();ctx.strokeStyle=`rgba(45,50,68,${alpha})`;ctx.lineWidth=1;ctx.stroke();}
-
-function drawCornerFrame(f){ctx.strokeStyle='rgba(55,60,78,0.6)';ctx.lineWidth=1;
-ctx.beginPath();ctx.moveTo(f.x,f.y+f.corner);ctx.lineTo(f.x,f.y);ctx.lineTo(f.x+f.corner,f.y);ctx.stroke();
-ctx.beginPath();ctx.moveTo(f.x+f.w-f.corner,f.y);ctx.lineTo(f.x+f.w,f.y);ctx.lineTo(f.x+f.w,f.y+f.corner);ctx.stroke();
-ctx.beginPath();ctx.moveTo(f.x,f.y+f.h-f.corner);ctx.lineTo(f.x,f.y+f.h);ctx.lineTo(f.x+f.corner,f.y+f.h);ctx.stroke();
-ctx.beginPath();ctx.moveTo(f.x+f.w-f.corner,f.y+f.h);ctx.lineTo(f.x+f.w,f.y+f.h);ctx.lineTo(f.x+f.w,f.y+f.h-f.corner);ctx.stroke();}
-
-let t=0;
-function draw(){t++;ctx.clearRect(0,0,W,H);
-let grd=ctx.createLinearGradient(0,0,0,H);grd.addColorStop(0,'#0a0e1e');grd.addColorStop(1,'#0e142a');ctx.fillStyle=grd;ctx.fillRect(0,0,W,H);
-hexes.forEach((h,i)=>{let p=(Math.sin(t*0.008+i*0.7)+1)/2;drawHex(h.x,h.y,h.s,0.4+0.3*p);});
-frames.forEach(f=>drawCornerFrame(f));
-connectors.forEach(c=>{ctx.strokeStyle='rgba(40,44,58,0.6)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(c.x1,c.y1);ctx.lineTo(c.x2,c.y2);ctx.stroke();ctx.fillStyle='rgba(60,65,85,0.7)';ctx.beginPath();ctx.arc(c.x1,c.y1,2.5,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.arc(c.x2,c.y2,2.5,0,Math.PI*2);ctx.fill();});
-paths.forEach(p=>{let pos=(Math.sin(t*p.speed+p.phase)+1)/2;let px=p.x1+(p.x2-p.x1)*pos;let py=p.y1+(p.y2-p.y1)*pos;let g=ctx.createRadialGradient(px,py,0,px,py,12);g.addColorStop(0,'rgba(200,180,120,0.4)');g.addColorStop(1,'rgba(200,180,120,0)');ctx.fillStyle=g;ctx.fillRect(px-12,py-12,24,24);ctx.fillStyle='rgba(200,180,120,0.8)';ctx.beginPath();ctx.arc(px,py,1.5,0,Math.PI*2);ctx.fill();});
-stars.forEach(s=>{let tw=(Math.sin(t*s.speed+s.phase)+1)/2;let a=s.base*(0.3+0.7*tw);let x=s.x*W;let y=s.y*H;if(a>0.3&&s.r>1){let sg=ctx.createRadialGradient(x,y,0,x,y,s.r*4);sg.addColorStop(0,`rgba(200,190,160,${a*0.3})`);sg.addColorStop(1,'rgba(200,190,160,0)');ctx.fillStyle=sg;ctx.fillRect(x-s.r*4,y-s.r*4,s.r*8,s.r*8);}ctx.fillStyle=`rgba(220,215,195,${a})`;ctx.beginPath();ctx.arc(x,y,s.r*0.8,0,Math.PI*2);ctx.fill();});
-requestAnimationFrame(draw);}
-draw();
+const canvas=document.getElementById('stars'),ctx=canvas.getContext('2d');
+let stars=[];
+function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;initStars();}
+function initStars(){stars=[];const count=Math.floor((canvas.width*canvas.height)/6000);for(let i=0;i<count;i++)stars.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*1.2+0.2,baseAlpha:Math.random()*0.5+0.1,pulse:Math.random()*Math.PI*2,speed:Math.random()*0.01+0.003});}
+function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);stars.forEach(s=>{s.pulse+=s.speed;const a=s.baseAlpha+Math.sin(s.pulse)*0.15;ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fillStyle=`rgba(240,234,214,${Math.max(0,a)})`;ctx.fill();});requestAnimationFrame(draw);}
+window.addEventListener('resize',resize);resize();draw();
+const g=document.getElementById('hexgrid'),hs=20;
+for(let q=-10;q<=10;q++)for(let r=-8;r<=8;r++){const x=300+hs*(Math.sqrt(3)*q+Math.sqrt(3)/2*r),y=150+hs*(3/2*r);if(Math.sqrt((x-300)**2+(y-150)**2)>280)continue;const pts=[];for(let i=0;i<6;i++){const a=(Math.PI/180)*(60*i-30);pts.push(`${x+hs*0.85*Math.cos(a)},${y+hs*0.85*Math.sin(a)}`);}const p=document.createElementNS('http://www.w3.org/2000/svg','polygon');p.setAttribute('points',pts.join(' '));p.setAttribute('fill','none');p.setAttribute('stroke','#d4a24e');p.setAttribute('stroke-width','0.5');g.appendChild(p);}
 </script>
 </body>
 </html>
