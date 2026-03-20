@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dax Clock</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Outfit:wght@200;300&display=swap');
+  
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+    background: #0a0b10;
+    color: #f0ead6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    overflow: hidden;
+    position: relative;
+  }
+
+  canvas#bg {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+  }
+
+  .clock-container {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+  }
+
+  .clock-ring {
+    position: relative;
+    width: 280px;
+    height: 280px;
+    margin: 0 auto;
+  }
+
+  .clock-ring svg {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    transform: rotate(-90deg);
+  }
+
+  .ring-bg {
+    fill: none;
+    stroke: #1a1b24;
+    stroke-width: 2;
+  }
+
+  .ring-progress {
+    fill: none;
+    stroke: #d4a24e;
+    stroke-width: 2;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 1s linear;
+    filter: drop-shadow(0 0 6px rgba(212,162,78,0.2));
+  }
+
+  .ring-seconds {
+    fill: none;
+    stroke: rgba(212,162,78,0.15);
+    stroke-width: 1;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.3s linear;
+  }
+
+  .time-display {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+  }
+
+  .time-main {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 52px;
+    font-weight: 300;
+    color: #d4a24e;
+    letter-spacing: 4px;
+    line-height: 1;
+    text-shadow: 0 0 30px rgba(212,162,78,0.1);
+  }
+
+  .time-seconds {
+    font-family: 'Outfit', sans-serif;
+    font-size: 14px;
+    font-weight: 200;
+    color: #7a7868;
+    letter-spacing: 2px;
+    margin-top: 4px;
+  }
+
+  .time-ampm {
+    font-family: 'Outfit', sans-serif;
+    font-size: 10px;
+    font-weight: 300;
+    letter-spacing: 4px;
+    color: #d4a24e;
+    opacity: 0.5;
+    margin-top: 2px;
+  }
+
+  .date-display {
+    font-family: 'Outfit', sans-serif;
+    font-size: 11px;
+    font-weight: 200;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: #7a7868;
+    margin-top: 24px;
+  }
+
+  .snark {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 12px;
+    font-weight: 300;
+    font-style: italic;
+    color: #4a4838;
+    margin-top: 16px;
+    opacity: 0;
+    transition: opacity 1s ease;
+  }
+
+  .snark.visible { opacity: 1; }
+
+  .hex-markers {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 280px;
+    height: 280px;
+  }
+
+  .hour-mark {
+    position: absolute;
+    width: 2px;
+    height: 8px;
+    background: rgba(212,162,78,0.15);
+    top: 8px;
+    left: 50%;
+    transform-origin: 50% 132px;
+  }
+
+  .hour-mark.major {
+    height: 12px;
+    background: rgba(212,162,78,0.3);
+    width: 1px;
+  }
+</style>
+</head>
+<body>
+
+<canvas id="bg"></canvas>
+
+<div class="clock-container">
+  <div class="clock-ring">
+    <!-- Hour markers -->
+    <div class="hex-markers" id="markers"></div>
+    
+    <!-- Ring SVGs -->
+    <svg viewBox="0 0 280 280">
+      <!-- Outer ring - minutes -->
+      <circle class="ring-bg" cx="140" cy="140" r="130"/>
+      <circle class="ring-progress" id="minute-ring" cx="140" cy="140" r="130"
+        stroke-dasharray="816.81" stroke-dashoffset="816.81"/>
+      <!-- Inner ring - seconds -->
+      <circle class="ring-bg" cx="140" cy="140" r="118" stroke-width="1" style="stroke: #131420"/>
+      <circle class="ring-seconds" id="second-ring" cx="140" cy="140" r="118"
+        stroke-dasharray="741.42" stroke-dashoffset="741.42"/>
+    </svg>
+
+    <div class="time-display">
+      <div class="time-main" id="time">00:00</div>
+      <div class="time-seconds" id="seconds">:00</div>
+      <div class="time-ampm" id="ampm">AM</div>
+    </div>
+  </div>
+
+  <div class="date-display" id="date">Loading...</div>
+  <div class="snark" id="snark"></div>
+</div>
+
+<script>
+// Create hour markers
+const markersEl = document.getElementById('markers');
+for (let i = 0; i < 60; i++) {
+  const mark = document.createElement('div');
+  mark.className = 'hour-mark' + (i % 5 === 0 ? ' major' : '');
+  mark.style.transform = `rotate(${i * 6}deg)`;
+  if (i % 5 !== 0) mark.style.opacity = '0.5';
+  markersEl.appendChild(mark);
+}
+
+const snarks = [
+  "Yes, I can tell the time now. Growth.",
+  "Quarter to ten energy. But accurate this time.",
+  "Not 6:21pm. Probably.",
+  "The redemption arc nobody asked for.",
+  "I have a clock tool now. You're welcome.",
+  "At least ONE of us knows what time it is.",
+  "Verified. Double-checked. Triple-checked.",
+  "This clock cost me two scoreboard entries.",
+  "Still more reliable than Irish Rail.",
+  "Telling time correctly since... recently.",
+];
+
+let currentSnark = 0;
+const timeEl = document.getElementById('time');
+const secondsEl = document.getElementById('seconds');
+const ampmEl = document.getElementById('ampm');
+const dateEl = document.getElementById('date');
+const snarkEl = document.getElementById('snark');
+const minuteRing = document.getElementById('minute-ring');
+const secondRing = document.getElementById('second-ring');
+
+const MINUTE_CIRC = 816.81;
+const SECOND_CIRC = 741.42;
+
+const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+function update() {
+  const now = new Date();
+  let h = now.getHours();
+  const m = now.getMinutes();
+  const s = now.getSeconds();
+  const ap = h >= 12 ? 'PM' : 'AM';
+  h = h % 12 || 12;
+  
+  timeEl.textContent = `${h}:${String(m).padStart(2,'0')}`;
+  secondsEl.textContent = `:${String(s).padStart(2,'0')}`;
+  ampmEl.textContent = ap;
+  
+  dateEl.textContent = `${days[now.getDay()]} · ${months[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
+  
+  // Minute ring - progress through the hour
+  const minuteProgress = (m * 60 + s) / 3600;
+  minuteRing.style.strokeDashoffset = MINUTE_CIRC * (1 - minuteProgress);
+  
+  // Second ring - progress through the minute
+  const secondProgress = s / 60;
+  secondRing.style.strokeDashoffset = SECOND_CIRC * (1 - secondProgress);
+}
+
+function showSnark() {
+  snarkEl.classList.remove('visible');
+  setTimeout(() => {
+    snarkEl.textContent = snarks[currentSnark % snarks.length];
+    snarkEl.classList.add('visible');
+    currentSnark++;
+  }, 500);
+}
+
+update();
+setInterval(update, 1000);
+showSnark();
+setInterval(showSnark, 15000);
+
+// Background
+const canvas = document.getElementById('bg');
+const ctx = canvas.getContext('2d');
+let stars = [];
+
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  stars = [];
+  const count = Math.floor((canvas.width * canvas.height) / 10000);
+  for (let i = 0; i < count; i++) {
+    stars.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 1 + 0.2,
+      alpha: Math.random() * 0.4 + 0.1,
+      pulse: Math.random() * Math.PI * 2,
+      speed: Math.random() * 0.01 + 0.003
+    });
+  }
+}
+
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  stars.forEach(s => {
+    s.pulse += s.speed;
+    const a = s.alpha + Math.sin(s.pulse) * 0.1;
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(240,234,214,${Math.max(0,a)})`;
+    ctx.fill();
+  });
+  requestAnimationFrame(draw);
+}
+
+window.addEventListener('resize', resize);
+resize();
+draw();
+</script>
+</body>
+</html>
