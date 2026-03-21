@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guides & Education</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Outfit:wght@200;300&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#0a0b10;overflow:hidden;height:100vh;width:100vw;position:relative;}
+canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;}
+.node-bg{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);opacity:0.04;z-index:0;}
+.overlay{position:fixed;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1;}
+.title{font-family:'Cormorant Garamond',Georgia,serif;font-size:clamp(20px,4vw,32px);font-weight:300;letter-spacing:0.4em;color:#f0ead6;text-transform:uppercase;}
+.divider{width:60px;height:1px;background:linear-gradient(90deg,transparent,#d4a24e,transparent);margin:12px auto;opacity:0.5;}
+.sub{font-family:'Outfit',sans-serif;font-size:clamp(8px,1.1vw,11px);font-weight:200;letter-spacing:4px;text-transform:uppercase;color:#7a7868;}
+</style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+<svg class="node-bg" width="600" height="300" viewBox="0 0 600 300"><g id="nodegrid"></g></svg>
+<div class="overlay">
+<div class="title">Guides & Education</div>
+<div class="divider"></div>
+<div class="sub">Learn it, map it, master it</div>
+</div>
+<script>
+const canvas=document.getElementById('stars'),ctx=canvas.getContext('2d');
+let stars=[];
+function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;initStars();}
+function initStars(){stars=[];const count=Math.floor((canvas.width*canvas.height)/6000);for(let i=0;i<count;i++)stars.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*1.2+0.2,baseAlpha:Math.random()*0.5+0.1,pulse:Math.random()*Math.PI*2,speed:Math.random()*0.01+0.003});}
+function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);stars.forEach(s=>{s.pulse+=s.speed;const a=s.baseAlpha+Math.sin(s.pulse)*0.15;ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fillStyle=`rgba(240,234,214,${Math.max(0,a)})`;ctx.fill();});requestAnimationFrame(draw);}
+window.addEventListener('resize',resize);resize();draw();
+const g=document.getElementById('nodegrid');
+const nodes=[];const seed=42;let rng=seed;
+function prng(){rng=(rng*16807+0)%2147483647;return(rng-1)/2147483646;}
+for(let i=0;i<seed;i++)prng();
+for(let i=0;i<60;i++){const x=prng()*520+40,y=prng()*220+40;if(Math.sqrt((x-300)**2+(y-150)**2)>260)continue;nodes.push({x,y});}
+nodes.forEach((n,i)=>{nodes.forEach((m,j)=>{if(j<=i)return;const d=Math.sqrt((n.x-m.x)**2+(n.y-m.y)**2);if(d<80&&d>20){const l=document.createElementNS('http://www.w3.org/2000/svg','line');l.setAttribute('x1',n.x);l.setAttribute('y1',n.y);l.setAttribute('x2',m.x);l.setAttribute('y2',m.y);l.setAttribute('stroke','#d4a24e');l.setAttribute('stroke-width','0.4');l.setAttribute('opacity',Math.max(0.15,1-d/80).toFixed(2));g.appendChild(l);}});const c=document.createElementNS('http://www.w3.org/2000/svg','circle');c.setAttribute('cx',n.x);c.setAttribute('cy',n.y);c.setAttribute('r',prng()*1.5+0.8);c.setAttribute('fill','#d4a24e');c.setAttribute('opacity','0.4');g.appendChild(c);});
+</script>
+</body>
+</html>
