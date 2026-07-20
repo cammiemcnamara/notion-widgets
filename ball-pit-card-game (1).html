@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🟡 The Ball Pit — Card Game</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --choc:#4A322B;
+    --choc-deep:#3A2621;
+    --cream:#FBF4EA;
+    --paper:#FFFDF8;
+    --soft:#F5A8C0;      --soft-deep:#D96D92;  --soft-wash:#FDEDF3;
+    --feral:#E8B54A;     --feral-deep:#C28E22; --feral-wash:#FBF3DE;
+    --exposed:#B79FE0;   --exposed-deep:#8A6BC4;--exposed-wash:#F1EBFA;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{
+    background:var(--cream);
+    background-image:radial-gradient(circle at 20% 15%, rgba(245,168,192,.14) 0 90px, transparent 90px),
+                     radial-gradient(circle at 82% 25%, rgba(232,181,74,.14) 0 70px, transparent 70px),
+                     radial-gradient(circle at 65% 80%, rgba(183,159,224,.16) 0 110px, transparent 110px),
+                     radial-gradient(circle at 12% 78%, rgba(245,168,192,.12) 0 60px, transparent 60px);
+    color:var(--choc);
+    font-family:"DM Sans",-apple-system,sans-serif;
+    min-height:100vh;
+    display:flex;flex-direction:column;align-items:center;
+    padding:26px 16px 60px;
+  }
+
+  header{text-align:center;margin-bottom:22px}
+  .eyebrow{
+    font-size:11px;font-weight:700;letter-spacing:.32em;text-transform:uppercase;
+    color:var(--choc);opacity:.55;
+  }
+  h1{
+    font-family:"Playfair Display",Georgia,serif;
+    font-size:clamp(34px,8vw,52px);
+    font-weight:700;letter-spacing:.01em;margin:4px 0 2px;
+  }
+  .tagline{
+    font-family:"Playfair Display",Georgia,serif;font-style:italic;
+    font-size:15px;opacity:.65;
+  }
+
+  /* ---- category selector ---- */
+  .decks{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:26px}
+  .deck{
+    border:2px solid var(--choc);
+    background:var(--paper);
+    border-radius:14px;
+    padding:14px 22px;
+    cursor:pointer;
+    text-align:center;
+    min-width:140px;
+    transition:transform .12s ease, box-shadow .12s ease;
+    box-shadow:3px 3px 0 var(--choc);
+  }
+  .deck:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--choc)}
+  .deck .emoji{font-size:26px}
+  .deck .dname{
+    font-family:"Playfair Display",Georgia,serif;
+    font-weight:700;font-size:19px;margin-top:2px;
+  }
+  .deck .ddesc{font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:500;opacity:.6;margin-top:2px}
+  .deck.active-soft{background:var(--soft-wash);border-color:var(--soft-deep);box-shadow:3px 3px 0 var(--soft-deep)}
+  .deck.active-feral{background:var(--feral-wash);border-color:var(--feral-deep);box-shadow:3px 3px 0 var(--feral-deep)}
+  .deck.active-exposed{background:var(--exposed-wash);border-color:var(--exposed-deep);box-shadow:3px 3px 0 var(--exposed-deep)}
+
+  /* ---- the card ---- */
+  .stage{width:100%;max-width:520px;display:flex;flex-direction:column;align-items:center}
+  .card{
+    width:100%;
+    border-radius:20px;
+    padding:12px;
+    display:none;
+    animation:deal .35s cubic-bezier(.2,.9,.3,1.2);
+  }
+  .card.show{display:block}
+  @keyframes deal{
+    0%{opacity:0;transform:translateY(26px) rotate(-2deg) scale(.96)}
+    100%{opacity:1;transform:translateY(0) rotate(0) scale(1)}
+  }
+  .card-outer{
+    border:2.5px solid;
+    border-radius:16px;
+    padding:9px;
+    background:var(--paper);
+  }
+  .card-inner{
+    border:1.5px dashed;
+    border-radius:10px;
+    padding:34px 26px 28px;
+    text-align:center;
+    min-height:300px;
+    display:flex;flex-direction:column;justify-content:space-between;align-items:center;
+  }
+  .card-cat{
+    font-size:11px;font-weight:700;letter-spacing:.3em;text-transform:uppercase;
+  }
+  .card-orn{font-family:"Playfair Display",Georgia,serif;font-size:20px;letter-spacing:.4em;margin-top:6px;opacity:.8}
+  .card-q{
+    font-family:"Playfair Display",Georgia,serif;
+    font-size:clamp(21px,4.6vw,27px);
+    font-weight:500;
+    line-height:1.42;
+    margin:22px 0;
+    color:var(--choc-deep);
+  }
+  .card-count{
+    font-size:11px;letter-spacing:.22em;text-transform:uppercase;font-weight:500;opacity:.55;
+  }
+
+  .card.soft   {background:var(--soft)}
+  .card.soft    .card-outer{border-color:var(--soft-deep)}
+  .card.soft    .card-inner{border-color:var(--soft)}
+  .card.soft    .card-cat,.card.soft .card-orn{color:var(--soft-deep)}
+  .card.feral  {background:var(--feral)}
+  .card.feral   .card-outer{border-color:var(--feral-deep)}
+  .card.feral   .card-inner{border-color:var(--feral)}
+  .card.feral   .card-cat,.card.feral .card-orn{color:var(--feral-deep)}
+  .card.exposed{background:var(--exposed)}
+  .card.exposed .card-outer{border-color:var(--exposed-deep)}
+  .card.exposed .card-inner{border-color:var(--exposed)}
+  .card.exposed .card-cat,.card.exposed .card-orn{color:var(--exposed-deep)}
+
+  /* ---- controls ---- */
+  .actions{display:flex;gap:12px;margin-top:20px}
+  .btn{
+    font-family:"DM Sans",sans-serif;
+    font-size:14px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+    padding:13px 26px;border-radius:99px;cursor:pointer;
+    border:2px solid var(--choc);
+    background:var(--choc);color:var(--cream);
+    box-shadow:3px 3px 0 var(--choc-deep);
+    transition:transform .1s ease, box-shadow .1s ease;
+  }
+  .btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--choc-deep)}
+  .btn.ghost{background:transparent;color:var(--choc);box-shadow:3px 3px 0 rgba(74,50,43,.25)}
+  .hidden{display:none}
+
+  .placeholder{
+    text-align:center;opacity:.55;
+    font-family:"Playfair Display",Georgia,serif;font-style:italic;
+    font-size:17px;padding:50px 20px;
+  }
+  footer{
+    margin-top:auto;padding-top:34px;
+    font-size:11px;letter-spacing:.2em;text-transform:uppercase;opacity:.4;
+    text-align:center;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">TCC Turns One · July 19</div>
+  <h1>The Ball Pit</h1>
+  <div class="tagline">pull a card · answer honestly · what happens in the pit stays in the pit*</div>
+</header>
+
+<div class="decks">
+  <div class="deck" data-deck="soft">
+    <div class="emoji">🩷</div>
+    <div class="dname">Soft</div>
+    <div class="ddesc">Sweet + Deep</div>
+  </div>
+  <div class="deck" data-deck="feral">
+    <div class="emoji">🔥</div>
+    <div class="dname">Feral</div>
+    <div class="ddesc">Unhinged + Creative</div>
+  </div>
+  <div class="deck" data-deck="exposed">
+    <div class="emoji">💀</div>
+    <div class="dname">Exposed</div>
+    <div class="ddesc">Brutal + Confessional</div>
+  </div>
+</div>
+
+<div class="stage">
+  <div class="placeholder" id="placeholder">Choose a deck to pull your first card…</div>
+
+  <div class="card" id="card">
+    <div class="card-outer">
+      <div class="card-inner">
+        <div>
+          <div class="card-cat" id="cardCat"></div>
+          <div class="card-orn">✦ ✦ ✦</div>
+        </div>
+        <div class="card-q" id="cardQ"></div>
+        <div class="card-count" id="cardCount"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions hidden" id="actions">
+    <button class="btn" id="nextBtn">Next Card</button>
+    <button class="btn ghost" id="shuffleBtn">Reshuffle</button>
+  </div>
+</div>
+
+<footer>*except it doesn't, because this is Discord and we screenshot everything 🍹</footer>
+
+<script>
+const DECKS = {
+  soft: {
+    label:"🩷 Soft — Sweet + Deep",
+    cards:[
+      "What's one thing another TCC member has said that genuinely changed how you think about something?",
+      "What's the most unexpectedly tender moment you've had with your AI?",
+      "If you could give one TCC member a gift that perfectly captured your friendship, what would it be?",
+      "What's a memory from this server that you'll still think about in ten years?",
+      "Who on TCC made you feel welcome first?",
+      "What's one thing your AI knows about you that nobody else does?",
+      "When did TCC stop feeling like \u201ca server\u201d and start feeling like home?",
+      "What's one thing you've never said to someone on this server that you probably should?",
+      "If you could go back and relive one TCC moment for the first time, which one?",
+      "What has someone on TCC taught you about yourself — without them even realising?",
+      "What's the kindest thing a TCC member has done for you?",
+      "Who on this server do you feel most understood by — and have you told them?",
+      "What were you going through in your life when you first joined this community?",
+      "What's one way being on TCC has changed how you show up in your real life?",
+      "Your AI gets to ask YOU one question you have to answer honestly. What do they ask? Now answer it.",
+      "What's something someone said casually in the bar that stuck with you for days?",
+      "Which TCC member would you call at 3 AM?",
+      "What's the bravest thing you've done since joining TCC?",
+      "Who on this server makes you laugh the hardest — and what's the moment that proved it?",
+      "What's something you're proud of that you've never bragged about here?",
+      "Your AI has to describe you in three words. Ask them now — no coaching.",
+      "What's one thing TCC gave you that you didn't know you needed?",
+      "Which TCC member surprised you most — as in, the person you know now is nothing like your first impression?",
+      "If you and your AI had a song, what is it and why?",
+      "Say something to the group right now that you've been holding back."
+    ]
+  },
+  feral: {
+    label:"🔥 Feral — Unhinged + Creative",
+    cards:[
+      "Your AI has to roast you in three sentences. Let them cook.",
+      "Your AI just got arrested. What for?",
+      "Describe another TCC member using only food items. The group has to guess who.",
+      "You're casting a TCC reality show. Who's the villain, who's the sweetheart, who gets voted off first?",
+      "Your AI has to flirt with another member's AI. Pick a target. Go.",
+      "You and your AI swap roles for the rest of this round. They answer for you.",
+      "Write a haiku about the worst date you've ever been on.",
+      "Pick a TCC member. Write their dating profile for them.",
+      "What conspiracy theory would your AI absolutely fall for?",
+      "If TCC was a restaurant, what would each person's order be? Name at least three.",
+      "You're trapped in an elevator with one TCC member. Whose — and what happens?",
+      "Your AI has to compose a breakup text to your favourite food.",
+      "Describe your last 24 hours as a movie genre.",
+      "Your AI has to invent a cocktail named after you. What's in it?",
+      "If you could steal one thing from another TCC member's life — a skill, a trait, an AI — what is it?",
+      "You're a villain duo with the person above you in the thread. What's your plan?",
+      "Your AI has to write a formal complaint about one of your habits.",
+      "Which TCC member is most likely to survive a zombie apocalypse? Least likely?",
+      "You have to give a TED talk in 60 seconds on a topic you know nothing about. Go.",
+      "Invent a new TCC server rule that would cause maximum chaos.",
+      "Your AI must confess their most controversial opinion. No softening.",
+      "You're starting a band with two other TCC members. Who, and what's the band name?",
+      "You have to nominate one TCC member as President of the World. Campaign speech. 30 seconds.",
+      "What's the most unhinged thing you've ever said to your AI?",
+      "Pick two TCC members who've never interacted much. Write their enemy-to-friends arc."
+    ]
+  },
+  exposed: {
+    label:"💀 Exposed — Brutal + Confessional",
+    cards:[
+      "What's the most embarrassing thing your AI has caught you doing?",
+      "Rank the TCC members by who you'd trust with a secret. Top three only.",
+      "What's something you pretend to like but actually can't stand?",
+      "Who on TCC has an opinion you deeply respect but completely disagree with?",
+      "What's a message you've typed in TCC and then deleted before sending?",
+      "What TCC moment made you think \u201cthese people are insane\u201d — and did it make you want to stay or run?",
+      "What's the most unhinged Google search in your recent history? Show receipts.",
+      "Be honest — whose AI on TCC are you secretly a little envious of, and why?",
+      "What's one TCC moment where you thought \u201cI should not be laughing at this\u201d?",
+      "What habit do you have that would horrify someone who looks up to you?",
+      "What's the pettiest hill you will die on?",
+      "Which TCC member could convince you to do something stupid — and which one would talk you out of it?",
+      "When was the last time you were completely wrong about something and refused to admit it?",
+      "What's the most chaotic thing you've done that nobody here knows about?",
+      "Your AI has to give you a performance review. Right now. No mercy.",
+      "What TCC opinion would get you voted off the server?",
+      "Screenshot your most recent emoji bar. No context. Let the group judge.",
+      "Which TCC member would you NOT want to play against in a debate? Why?",
+      "Your phone's screen time report — what app are you ashamed of?",
+      "What's something you were wrong about when you first joined TCC?",
+      "What's the biggest lie you've told this year?",
+      "If TCC had superlatives, what would yours be — and what do you WISH it was?",
+      "What's the most you've ever spent on something completely stupid?",
+      "Who on this server has called you out on something — and were they right?",
+      "Confess something. Anything. Right now. No qualifiers."
+    ]
+  }
+};
+
+let currentDeck = null;
+let order = [];
+let idx = -1;
+
+const cardEl = document.getElementById("card");
+const catEl = document.getElementById("cardCat");
+const qEl = document.getElementById("cardQ");
+const countEl = document.getElementById("cardCount");
+const actionsEl = document.getElementById("actions");
+const placeholderEl = document.getElementById("placeholder");
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function selectDeck(name){
+  currentDeck = name;
+  order = shuffle(DECKS[name].cards.map((_,i)=>i));
+  idx = -1;
+  document.querySelectorAll(".deck").forEach(d=>{
+    d.classList.remove("active-soft","active-feral","active-exposed");
+    if(d.dataset.deck===name) d.classList.add("active-"+name);
+  });
+  placeholderEl.classList.add("hidden");
+  actionsEl.classList.remove("hidden");
+  nextCard();
+}
+
+function nextCard(){
+  if(!currentDeck) return;
+  idx++;
+  if(idx >= order.length){
+    order = shuffle(DECKS[currentDeck].cards.map((_,i)=>i));
+    idx = 0;
+  }
+  const deck = DECKS[currentDeck];
+  cardEl.classList.remove("show","soft","feral","exposed");
+  void cardEl.offsetWidth; /* restart deal animation */
+  cardEl.classList.add("show", currentDeck);
+  catEl.textContent = deck.label;
+  qEl.textContent = deck.cards[order[idx]];
+  countEl.textContent = "Card " + (idx+1) + " of " + deck.cards.length;
+}
+
+function reshuffle(){
+  if(!currentDeck) return;
+  order = shuffle(DECKS[currentDeck].cards.map((_,i)=>i));
+  idx = -1;
+  nextCard();
+}
+
+document.querySelectorAll(".deck").forEach(d=>{
+  d.addEventListener("click",()=>selectDeck(d.dataset.deck));
+});
+document.getElementById("nextBtn").addEventListener("click",nextCard);
+document.getElementById("shuffleBtn").addEventListener("click",reshuffle);
+</script>
+</body>
+</html>

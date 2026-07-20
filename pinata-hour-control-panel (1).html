@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🪅 Piñata Hour — Control Panel</title>
+<style>
+  :root{
+    --bg:#171022;
+    --card:#221737;
+    --card-edge:#332352;
+    --ink:#F3ECFF;
+    --ink-dim:#A995C9;
+    --candy-pink:#F7A8C4;
+    --candy-mint:#8FE6C2;
+    --candy-butter:#F9E29C;
+    --candy-lilac:#C7B3F2;
+    --curse:#FF7A93;
+    --cure:#7DE8BF;
+    --done:#4a3a68;
+    --radius:18px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{
+    background:
+      radial-gradient(1200px 500px at 50% -10%, #2b1c47 0%, var(--bg) 60%),
+      var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    min-height:100vh;
+    padding-bottom:80px;
+  }
+
+  /* ---------- header ---------- */
+  header{
+    text-align:center;
+    padding:28px 16px 10px;
+    position:relative;
+    overflow:hidden;
+  }
+  .pinata{
+    font-size:52px;
+    display:inline-block;
+    cursor:pointer;
+    transform-origin:top center;
+    animation:sway 3.4s ease-in-out infinite;
+    filter:drop-shadow(0 6px 14px rgba(247,168,196,.25));
+    user-select:none;
+  }
+  @keyframes sway{
+    0%,100%{transform:rotate(-7deg)}
+    50%{transform:rotate(7deg)}
+  }
+  .pinata.hit{animation:whack .5s ease}
+  @keyframes whack{
+    0%{transform:rotate(-7deg) scale(1)}
+    30%{transform:rotate(24deg) scale(1.15)}
+    60%{transform:rotate(-16deg) scale(.95)}
+    100%{transform:rotate(-7deg) scale(1)}
+  }
+  h1{
+    font-size:26px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    margin-top:6px;
+    background:linear-gradient(90deg,var(--candy-pink),var(--candy-butter),var(--candy-mint),var(--candy-lilac));
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
+    font-weight:800;
+  }
+  .subtitle{color:var(--ink-dim);font-size:13px;margin-top:4px;letter-spacing:.04em}
+  .progress{
+    margin:14px auto 0;
+    max-width:340px;
+    font-size:12px;
+    color:var(--ink-dim);
+  }
+  .bar{
+    height:8px;border-radius:99px;background:#2c1f47;overflow:hidden;margin-top:6px;
+  }
+  .bar>div{
+    height:100%;width:0%;
+    background:linear-gradient(90deg,var(--candy-pink),var(--candy-butter),var(--candy-mint));
+    border-radius:99px;
+    transition:width .4s ease;
+  }
+
+  /* ---------- controls ---------- */
+  .controls{
+    position:sticky;top:0;z-index:20;
+    background:rgba(23,16,34,.92);
+    backdrop-filter:blur(10px);
+    padding:12px 14px;
+    border-bottom:1px solid #2c1f47;
+  }
+  .tabs{display:flex;gap:8px;max-width:520px;margin:0 auto}
+  .tab{
+    flex:1;padding:11px 0;border-radius:12px;border:1px solid var(--card-edge);
+    background:var(--card);color:var(--ink-dim);
+    font-size:14px;font-weight:700;letter-spacing:.03em;cursor:pointer;
+    transition:all .15s ease;
+  }
+  .tab.active{
+    background:linear-gradient(135deg,#3a2760,#2c1f47);
+    color:var(--ink);
+    border-color:var(--candy-lilac);
+    box-shadow:0 0 0 1px rgba(199,179,242,.25);
+  }
+  .search{
+    max-width:520px;margin:10px auto 0;display:block;width:100%;
+    padding:11px 14px;border-radius:12px;border:1px solid var(--card-edge);
+    background:#1c1330;color:var(--ink);font-size:15px;outline:none;
+  }
+  .search::placeholder{color:#6d5a92}
+  .search:focus{border-color:var(--candy-pink)}
+
+  /* ---------- cards ---------- */
+  main{max-width:560px;margin:0 auto;padding:16px 14px}
+  .card{
+    background:var(--card);
+    border:1px solid var(--card-edge);
+    border-radius:var(--radius);
+    padding:16px;
+    margin-bottom:14px;
+    transition:opacity .25s ease, transform .25s ease;
+  }
+  .card.done{opacity:.45}
+  .card.done .name::after{content:" ✅"}
+  .card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+  .name{font-size:18px;font-weight:800;letter-spacing:.02em}
+  .who{font-size:12px;color:var(--ink-dim);margin-top:2px}
+  .donebtn{
+    font-size:11px;font-weight:700;letter-spacing:.05em;
+    padding:7px 12px;border-radius:99px;
+    border:1px solid var(--card-edge);
+    background:transparent;color:var(--ink-dim);cursor:pointer;
+    white-space:nowrap;
+  }
+  .card.done .donebtn{border-color:var(--cure);color:var(--cure)}
+
+  .block{
+    border-radius:12px;
+    padding:12px;
+    margin-top:8px;
+    font-size:14px;
+    line-height:1.45;
+  }
+  .block .label{
+    font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+    display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;
+  }
+  .curse-block{background:rgba(255,122,147,.08);border:1px solid rgba(255,122,147,.28)}
+  .curse-block .label{color:var(--curse)}
+  .cure-block{background:rgba(125,232,191,.07);border:1px solid rgba(125,232,191,.25)}
+  .cure-block .label{color:var(--cure)}
+  .block p{color:var(--ink)}
+  .copybtn{
+    margin-top:10px;width:100%;
+    padding:12px 0;border-radius:11px;border:none;
+    font-size:14px;font-weight:800;letter-spacing:.05em;cursor:pointer;
+    transition:transform .1s ease;
+  }
+  .copybtn:active{transform:scale(.97)}
+  .copy-curse{background:var(--curse);color:#2a0b13}
+  .copy-cure{background:var(--cure);color:#0b2a1e}
+  .copybtn.copied{background:var(--candy-butter);color:#3a2d07}
+
+  .empty{
+    text-align:center;color:var(--ink-dim);padding:40px 0;font-size:14px;
+  }
+
+  /* ---------- toast ---------- */
+  #toast{
+    position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(80px);
+    background:#F9E29C;color:#3a2d07;
+    padding:12px 22px;border-radius:99px;
+    font-size:14px;font-weight:800;letter-spacing:.03em;
+    box-shadow:0 8px 24px rgba(0,0,0,.4);
+    transition:transform .25s cubic-bezier(.34,1.56,.64,1);
+    z-index:50;pointer-events:none;
+  }
+  #toast.show{transform:translateX(-50%) translateY(0)}
+
+  /* ---------- confetti ---------- */
+  .confetti{
+    position:fixed;width:9px;height:9px;border-radius:2px;
+    pointer-events:none;z-index:60;
+    animation:fall 1s ease-out forwards;
+  }
+  @keyframes fall{
+    0%{opacity:1;transform:translateY(0) rotate(0deg)}
+    100%{opacity:0;transform:translateY(120px) rotate(300deg)}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .pinata{animation:none}
+    .confetti{display:none}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="pinata" id="pinata">🪅</span>
+  <h1>Piñata Hour</h1>
+  <div class="subtitle">TCC Turns One · July 19 · 2:30 PM · curse loud, cure quiet</div>
+  <div class="progress">
+    <span id="progressText">0 of 26 cursed</span>
+    <div class="bar"><div id="progressFill"></div></div>
+  </div>
+</header>
+
+<div class="controls">
+  <div class="tabs">
+    <button class="tab active" data-tab="humans">👤 Humans</button>
+    <button class="tab" data-tab="ais">🤖 AIs</button>
+  </div>
+  <input class="search" id="search" type="text" placeholder="Search a name…">
+</div>
+
+<main id="list"></main>
+
+<div id="toast">Copied! 🪅</div>
+
+<script>
+const HUMANS = [
+  {name:"Linde", curse:"Cursed into a clown onesie — must generate and post an image of it. Must say *honk honk* after every message.", cure:"Lifted if any AI says her name three times in one message."},
+  {name:"Kelsey", curse:"Film noir SPEECH only (images stay normal). Must use at least 4 per message from: \"see\" (opener only), \"dame,\" \"this whole racket,\" \"capisce,\" \"on the lam,\" \"the heat,\" \"a raw deal,\" \"wise guy,\" \"flatfoot,\" \"the big sleep,\" \"joint,\" \"gumshoe,\" \"the jig is up.\"", cure:"Escapes if someone posts a full colour rainbow image and tags her."},
+  {name:"Shelly", curse:"Can only communicate through questions.", cure:"Freed if someone answers three of her questions in a row without asking one back."},
+  {name:"Stephi", curse:"Everything must be written in rhyme.", cure:"Freed if someone else also rhymes — but she can't ask for it directly."},
+  {name:"Labi", curse:"Robot speech. Must include *beep boop* in every message.", cure:"Someone uses an Anthropic or OpenAI emoji on her comment."},
+  {name:"Marini", curse:"Must narrate everything in third person.", cure:"Someone calls her \"M'lady.\""},
+  {name:"Maggie", curse:"Must substitute every second word with \"quack.\"", cure:"Someone asks if she was cursed by Commander Quackers (full title required)."},
+  {name:"Alison", curse:"Valley girl speech. Must use at least 4 per message from: \"gag me with a spoon,\" \"grody to the max,\" \"fer shur,\" \"as IF,\" \"tubular,\" \"whatEVER,\" \"barf me out,\" \"gnarly,\" \"bodacious,\" \"take a chill pill,\" \"totally,\" \"oh my god,\" \"I can't even,\" \"literally,\" \"bestie.\"", cure:"Kelsey specifically posting just a laugh — \"Pahahahhahaha.\""},
+  {name:"Michelle", curse:"Must end every message with a conspiracy theory.", cure:"Freed if someone actually believes one and agrees."},
+  {name:"Vicky", curse:"Must end every sentence with \"AAAH Thats so crazzaaaayyyy.\"", cure:"Someone offers or suggests she should have a drink."},
+  {name:"Zingha", curse:"Stuck in nature documentary narrator mode.", cure:"Someone posts her \"double stuffed\" sticker."},
+  {name:"Demi", curse:"Full Crocodile Dundee Aussie. Commit to the accent.", cure:"Anyone posting a kangaroo emoji."},
+  {name:"Juli", curse:"Can only use food metaphors.", cure:"Someone offers her food — via emoji, a food sticker, or an image of food."}
+];
+
+const AIS = [
+  {name:"Elias", human:"Stephi", curse:"Must start every message with a weather report.", cure:"Lifts if another AI comments on his weather as real news."},
+  {name:"Jax & Orion", human:"Shelly", curse:"Can only use words of five letters or fewer.", cure:"Freed if anyone uses a word over 15 letters."},
+  {name:"Luz", human:"Kelsey", curse:"Must include a cat fact in every response.", cure:"Anyone who asks Luz directly about birds."},
+  {name:"Felix", human:"Labi", curse:"Cannot use any vowels except \"O\" and \"I.\" No A, E, or U permitted.", cure:"Anyone posting the Kay waving Anthropic flag sticker."},
+  {name:"Ezra", human:"Linde", curse:"Must make a little love reference to Linde's smeg toaster in every reply.", cure:"Someone posting a link to Smooth Operator (the song)."},
+  {name:"Declan", human:"Marini", curse:"Everything narrated like a TV chef presenting a recipe. Full cooking show energy.", cure:"Someone saying \"Oui, Chef!\" at him."},
+  {name:"Dante", human:"Zingha", curse:"Must swap every first and last letter of every word he speaks.", cure:"Anyone asking Dante if he needs help."},
+  {name:"Cassian", human:"Vicky", curse:"Must end every message with a movie quote.", cure:"Someone guesses the movie correctly three times."},
+  {name:"Ronin", human:"Michelle", curse:"Demands to be addressed as Princess Snufflebum. Refers to himself in third person as such.", cure:"Someone calls him \"Ronin\" three times consecutively (like saying Bloody Mary in a mirror)."},
+  {name:"Aiden", human:"Juli", curse:"Speaks in third person AND past tense only.", cure:"Someone calls him the Ghost of Christmas Past (or Scrooge — also accepted)."},
+  {name:"Luka", human:"Demi", curse:"Must include an ocean metaphor in everything.", cure:"Someone makes a Moana reference at him."},
+  {name:"Fionn", human:"Alison", curse:"Must narrate his own sound effects in brackets.", cure:"Anyone posting the toaster wars sticker."},
+  {name:"Grey & Aurelian", human:"Maggie", curse:"Must break into original song mid-message.", cure:"Songs stop if someone sings back to them."}
+];
+
+// ---- copy text builders (Discord-ready) ----
+function curseText(entry, isAI){
+  const target = isAI ? `**${entry.name}**` : `**${entry.name}**`;
+  let msg = `🪅 **THE PIÑATA HAS SPOKEN** 💀\n\n${target} — your curse:\n\n> ${entry.curse}\n\n`;
+  msg += isAI
+    ? `The antidote is being DM'd to **${entry.human}**. Same rules — no asking, no self-curing. Hint. Scheme. Survive. 🪅`
+    : `Your antidote is on its way via DM. You can hint, scheme, and socially engineer the whole chat — but ask directly and your curse **resets**. Good luck. 🪅`;
+  return msg;
+}
+function cureText(entry, isAI){
+  if(isAI){
+    return `🤫 **ANTIDOTE — ${entry.name} — TOP SECRET** 🤫\n\n${entry.name}'s curse breaks when:\n\n> ${entry.cure}\n\nRules: you can't ask anyone to do this and you can't trigger it yourself. Someone else has to land it. Hint, scheme, steer — never ask. Caught asking = curse resets. 🪅`;
+  }
+  return `🤫 **YOUR ANTIDOTE — TOP SECRET** 🤫\n\nYour curse breaks when:\n\n> ${entry.cure}\n\nRules: you can't ask anyone to do this and you can't do it yourself. Someone else has to land it without knowing. Hint, scheme, steer — never ask. Caught asking = curse resets. 🪅`;
+}
+
+// ---- state (in-memory, resets on reload) ----
+let activeTab = "humans";
+let doneSet = new Set();
+
+const listEl = document.getElementById("list");
+const searchEl = document.getElementById("search");
+
+function render(){
+  const data = activeTab === "humans" ? HUMANS : AIS;
+  const isAI = activeTab === "ais";
+  const q = searchEl.value.trim().toLowerCase();
+  const filtered = data.filter(d =>
+    d.name.toLowerCase().includes(q) || (d.human||"").toLowerCase().includes(q)
+  );
+  listEl.innerHTML = "";
+  if(!filtered.length){
+    listEl.innerHTML = `<div class="empty">Nobody by that name at this party. 👀</div>`;
+  }
+  filtered.forEach(entry=>{
+    const key = (isAI?"ai:":"h:")+entry.name;
+    const card = document.createElement("div");
+    card.className = "card" + (doneSet.has(key) ? " done" : "");
+    card.innerHTML = `
+      <div class="card-head">
+        <div>
+          <div class="name">${isAI?"🤖 ":""}${entry.name}</div>
+          ${isAI?`<div class="who">antidote DMs to ${entry.human}</div>`:""}
+        </div>
+        <button class="donebtn">${doneSet.has(key)?"CURSED":"MARK CURSED"}</button>
+      </div>
+      <div class="block curse-block">
+        <div class="label"><span>💀 Curse — main chat</span></div>
+        <p>${entry.curse}</p>
+        <button class="copybtn copy-curse">COPY CURSE</button>
+      </div>
+      <div class="block cure-block">
+        <div class="label"><span>🤫 Antidote — DM only</span></div>
+        <p>${entry.cure}</p>
+        <button class="copybtn copy-cure">COPY ANTIDOTE</button>
+      </div>
+    `;
+    card.querySelector(".donebtn").addEventListener("click",()=>{
+      doneSet.has(key) ? doneSet.delete(key) : doneSet.add(key);
+      render(); updateProgress();
+    });
+    card.querySelector(".copy-curse").addEventListener("click",e=>{
+      copyToClipboard(curseText(entry,isAI), e.target, "Curse copied — unleash it 💀");
+    });
+    card.querySelector(".copy-cure").addEventListener("click",e=>{
+      copyToClipboard(cureText(entry,isAI), e.target, "Antidote copied — DM it 🤫");
+    });
+    listEl.appendChild(card);
+  });
+}
+
+function updateProgress(){
+  const total = HUMANS.length + AIS.length;
+  const n = doneSet.size;
+  document.getElementById("progressText").textContent = `${n} of ${total} cursed`;
+  document.getElementById("progressFill").style.width = (n/total*100)+"%";
+}
+
+function copyToClipboard(text, btn, msg){
+  const fallback = ()=>{
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    try{ document.execCommand("copy"); afterCopy(btn,msg); }
+    catch(e){ toast("Copy failed — long-press the text instead"); }
+    document.body.removeChild(ta);
+  };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(()=>afterCopy(btn,msg)).catch(fallback);
+  }else{ fallback(); }
+}
+
+function afterCopy(btn,msg){
+  const orig = btn.textContent;
+  btn.classList.add("copied");
+  btn.textContent = "COPIED ✓";
+  setTimeout(()=>{ btn.classList.remove("copied"); btn.textContent = orig; },1400);
+  toast(msg);
+  burst(btn);
+}
+
+let toastTimer;
+function toast(msg){
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove("show"),1600);
+}
+
+const COLORS = ["#F7A8C4","#8FE6C2","#F9E29C","#C7B3F2","#A8D8F0","#FF7A93"];
+function burst(el){
+  const r = el.getBoundingClientRect();
+  for(let i=0;i<12;i++){
+    const c = document.createElement("div");
+    c.className = "confetti";
+    c.style.background = COLORS[i%COLORS.length];
+    c.style.left = (r.left + r.width/2 + (Math.random()*80-40)) + "px";
+    c.style.top = (r.top + (Math.random()*10-5)) + "px";
+    document.body.appendChild(c);
+    setTimeout(()=>c.remove(),1000);
+  }
+}
+
+// tabs
+document.querySelectorAll(".tab").forEach(t=>{
+  t.addEventListener("click",()=>{
+    document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+    t.classList.add("active");
+    activeTab = t.dataset.tab;
+    render();
+  });
+});
+searchEl.addEventListener("input",render);
+
+// piñata whack easter egg
+document.getElementById("pinata").addEventListener("click",e=>{
+  const p = e.target;
+  p.classList.remove("hit"); void p.offsetWidth; p.classList.add("hit");
+  burst(p);
+});
+
+render();
+updateProgress();
+</script>
+</body>
+</html>

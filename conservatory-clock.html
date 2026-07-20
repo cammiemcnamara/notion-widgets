@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Conservatory Clock</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Cormorant+Garamond:ital@0;1&family=Parisienne&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#191919;          /* Notion dark-mode canvas */
+    --amber:#D9B44A;
+    --amber-deep:#B8912F;
+    --cream:#EFE6D8;
+    --plum-soft:#9A8AA8;
+    --neon:#FF6FA5;
+  }
+  *{margin:0; padding:0; box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    background:var(--bg);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Playfair Display', serif;
+    overflow:hidden;
+  }
+  .clock{
+    text-align:center;
+    padding:18px 26px;
+    user-select:none;
+  }
+  .time{
+    font-size:clamp(2.6rem, 12vw, 4.4rem);
+    font-weight:700;
+    letter-spacing:.08em;
+    color:var(--amber);
+    text-shadow:0 0 18px rgba(217,180,74,.35), 0 0 46px rgba(217,180,74,.12);
+    font-variant-numeric:tabular-nums;
+    line-height:1;
+  }
+  .time .colon{
+    animation:breathe 2s ease-in-out infinite;
+    color:var(--amber-deep);
+  }
+  @keyframes breathe{ 0%,100%{opacity:1} 50%{opacity:.25} }
+  .rule{
+    width:120px; height:1px; margin:14px auto 12px;
+    background:linear-gradient(90deg, transparent, var(--amber-deep), transparent);
+    position:relative;
+  }
+  .rule::after{
+    content:"✦"; position:absolute; left:50%; top:50%;
+    transform:translate(-50%,-50%);
+    color:var(--amber-deep); font-size:.6rem; background:var(--bg); padding:0 8px;
+  }
+  .date{
+    font-family:'Cormorant Garamond', serif;
+    font-style:italic;
+    font-size:clamp(.95rem, 3.4vw, 1.2rem);
+    letter-spacing:.14em;
+    color:var(--cream);
+    opacity:.85;
+  }
+  .motto{
+    margin-top:10px;
+    font-family:'Parisienne', cursive;
+    font-size:clamp(1rem, 3.6vw, 1.3rem);
+    color:var(--neon);
+    text-shadow:0 0 10px rgba(255,111,165,.55), 0 0 26px rgba(255,111,165,.25);
+    opacity:.9;
+  }
+  @media (prefers-reduced-motion: reduce){ .time .colon{animation:none} }
+</style>
+</head>
+<body>
+  <div class="clock">
+    <div class="time" id="time">--<span class="colon">:</span>--</div>
+    <div class="rule"></div>
+    <div class="date" id="date">&nbsp;</div>
+    <div class="motto">chaos, catalogued</div>
+  </div>
+<script>
+(function(){
+  var t = document.getElementById('time');
+  var d = document.getElementById('date');
+  function pad(n){ return (n<10?'0':'')+n; }
+  function tick(){
+    var now = new Date();
+    t.innerHTML = pad(now.getHours()) + '<span class="colon">:</span>' + pad(now.getMinutes());
+    var days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    var months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+    d.textContent = days[now.getDay()] + ' · ' + now.getDate() + ' ' + months[now.getMonth()] + ' ' + now.getFullYear();
+  }
+  tick();
+  setInterval(tick, 1000);
+})();
+</script>
+</body>
+</html>
