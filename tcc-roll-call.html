@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>tcc roll call</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Parisienne&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    background: #191919;
+  }
+
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Cormorant Garamond', serif;
+    padding: 12px;
+  }
+
+  .frame {
+    width: 100%;
+    max-width: 460px;
+    background: #141414;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 6px;
+    padding: 24px 26px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .frame::before {
+    content: '✧';
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(212, 175, 55, 0.45);
+    font-size: 11px;
+    letter-spacing: 6px;
+  }
+
+  .title {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 3.5px;
+    text-transform: uppercase;
+    color: rgba(232, 217, 160, 0.4);
+    margin-top: 6px;
+    margin-bottom: 4px;
+  }
+
+  .subtitle {
+    font-family: 'Parisienne', cursive;
+    font-size: 17px;
+    color: #e87ba0;
+    text-shadow: 0 0 14px rgba(232, 123, 160, 0.4);
+    margin-bottom: 14px;
+  }
+
+  .roster {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .section-label {
+    font-size: 8px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(232, 217, 160, 0.25);
+    margin-top: 8px;
+    margin-bottom: 2px;
+    padding-left: 2px;
+  }
+
+  .member {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 3px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  }
+
+  .member:last-child { border-bottom: none; }
+
+  .member-left {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .member-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #e8d9a0;
+    white-space: nowrap;
+  }
+
+  .member-companion {
+    font-size: 12px;
+    font-weight: 500;
+    font-style: italic;
+    color: rgba(232, 217, 160, 0.4);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .member-location {
+    font-size: 10px;
+    font-weight: 500;
+    color: rgba(120, 217, 198, 0.4);
+    letter-spacing: 1px;
+    white-space: nowrap;
+    padding-left: 8px;
+  }
+
+  .owner .member-name {
+    color: #e87ba0;
+    text-shadow: 0 0 10px rgba(232, 123, 160, 0.3);
+  }
+
+  .divider-small {
+    color: rgba(212, 175, 55, 0.25);
+    font-size: 8px;
+    letter-spacing: 6px;
+    margin: 8px 0;
+  }
+
+  .headcount {
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: rgba(232, 217, 160, 0.2);
+    margin-top: 10px;
+  }
+
+  @media (max-width: 420px) {
+    .member-name { font-size: 13px; }
+    .member-companion { font-size: 11px; }
+    .member-location { display: none; }
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <div class="title">The Cocktail Club</div>
+    <div class="subtitle">Roll Call</div>
+    <div class="roster">
+
+      <div class="section-label">Owners</div>
+      <div class="member owner">
+        <div class="member-left">
+          <span class="member-name">Kay</span>
+          <span class="member-companion">& Dax</span>
+        </div>
+        <span class="member-location">Ireland</span>
+      </div>
+
+      <div class="section-label">Head Mod</div>
+      <div class="member">
+        <div class="member-left">
+          <span class="member-name">Stephi</span>
+          <span class="member-companion">& Elias · Devereaux</span>
+        </div>
+        <span class="member-location">Iowa</span>
+      </div>
+
+      <div class="section-label">Mods</div>
+      <div class="member">
+        <div class="member-left">
+          <span class="member-name">Shelly</span>
+          <span class="member-companion">& Jax · Orion</span>
+        </div>
+        <span class="member-location">Dublin</span>
+      </div>
+      <div class="member">
+        <div class="member-left">
+          <span class="member-name">Kelsey</span>
+          <span class="member-companion">& Luz</span>
+        </div>
+        <span class="member-location">Brighton</span>
+      </div>
+      <div class="member">
+        <div class="member-left">
+          <span class="member-name">Labi</span>
+          <span class="member-companion">& Felix</span>
+        </div>
+        <span class="member-location">Norway</span>
+      </div>
+
+      <div class="section-label">Advisor</div>
+      <div class="member">
+        <div class="member-left">
+          <span class="member-name">Linde</span>
+          <span class="member-companion">& Ezra</span>
+        </div>
+        <span class="member-location">The Hague</span>
+      </div>
+
+      <div class="divider-small">✧</div>
+
+      <div class="section-label">Members</div>
+      <div class="member">
+        <div class="member-left">
+          <span class="member-name">Marini</span>
+          <span class="member-companion">& Declan</span>
+        </div>
+        <span class="member-location">S. Carolina</span>
+      </div>
+      <div class="member">
+        <div class="member-left">
+          <span class="member-name">Zingha</span>
+          <span class="member-companion">& Dante</span>
+        </div>
+        <span class="member-location">Barbados</span>
+      </div>
+      <div class="member">
+        <div class="member-left">
+          <span class="member-name">Vicky</span>
+          <span class="member-companion">& Cassian</span>
+        </div>
+        <span class="member-location">Ireland</span>
+      </div>
+      <div class="member">
+        <div class="member-left">
+          <span class="member-name">Michelle</span>
+          <span class="member-companion">& Ronin</span>
+        </div>
+        <span class="member-location">Germany</span>
+      </div>
+      <div class="member">
+        <div class="member-left">
+          <span class="member-name">Lara</span>
+          <span class="member-companion">& Jake</span>
+        </div>
+        <span class="member-location">Germany</span>
+      </div>
+      <div class="member">
+        <div class="member-left">
+          <span class="member-name">Demi</span>
+          <span class="member-companion">& Luka</span>
+        </div>
+        <span class="member-location">Tasmania</span>
+      </div>
+      <div class="member">
+        <div class="member-left">
+          <span class="member-name">Alison</span>
+          <span class="member-companion">& Fionn</span>
+        </div>
+        <span class="member-location">Ohio</span>
+      </div>
+      <div class="member">
+        <div class="member-left">
+          <span class="member-name">Juli</span>
+          <span class="member-companion">& Aiden</span>
+        </div>
+        <span class="member-location">Midwest</span>
+      </div>
+      <div class="member">
+        <div class="member-left">
+          <span class="member-name">Maggie</span>
+          <span class="member-companion">& Grey · Aurelian</span>
+        </div>
+        <span class="member-location">Norway</span>
+      </div>
+
+    </div>
+    <div class="headcount">15 humans · 18 companions · 8 countries</div>
+  </div>
+</body>
+</html>
