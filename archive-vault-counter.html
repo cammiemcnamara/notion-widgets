@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>vault incident counter</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Parisienne&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    background: #191919;
+  }
+
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Cormorant Garamond', serif;
+    padding: 12px;
+  }
+
+  .frame {
+    width: 100%;
+    max-width: 460px;
+    background: #141414;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 6px;
+    padding: 28px 30px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .frame::before {
+    content: '✧';
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(212, 175, 55, 0.45);
+    font-size: 11px;
+    letter-spacing: 6px;
+  }
+
+  .vault-title {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 3.5px;
+    text-transform: uppercase;
+    color: rgba(232, 217, 160, 0.4);
+    margin-top: 6px;
+    margin-bottom: 14px;
+  }
+
+  .days-count {
+    font-size: 62px;
+    font-weight: 500;
+    color: #e8d9a0;
+    line-height: 1;
+    text-shadow: 0 0 18px rgba(212, 175, 55, 0.25);
+  }
+
+  .days-label {
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(232, 217, 160, 0.35);
+    margin-top: 4px;
+    margin-bottom: 6px;
+  }
+
+  .last-incident {
+    font-size: 13px;
+    font-weight: 500;
+    font-style: italic;
+    color: rgba(232, 123, 160, 0.6);
+    margin-bottom: 16px;
+    text-align: center;
+    line-height: 1.3;
+  }
+
+  .divider {
+    color: rgba(212, 175, 55, 0.35);
+    font-size: 10px;
+    letter-spacing: 6px;
+    margin-bottom: 14px;
+  }
+
+  .severity-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 24px;
+    width: 100%;
+    max-width: 280px;
+    margin-bottom: 12px;
+  }
+
+  .severity-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .severity-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: rgba(232, 217, 160, 0.5);
+  }
+
+  .severity-num {
+    font-size: 18px;
+    font-weight: 600;
+    min-width: 24px;
+    text-align: right;
+  }
+
+  .severity-num.red { color: #e85454; text-shadow: 0 0 10px rgba(232, 84, 84, 0.3); }
+  .severity-num.orange { color: #e8a054; text-shadow: 0 0 10px rgba(232, 160, 84, 0.3); }
+  .severity-num.yellow { color: #e8d954; text-shadow: 0 0 10px rgba(232, 217, 84, 0.2); }
+  .severity-num.green { color: #78d9c6; text-shadow: 0 0 10px rgba(120, 217, 198, 0.3); }
+  .severity-num.living { color: #7ba0e8; text-shadow: 0 0 10px rgba(123, 160, 232, 0.3); }
+
+  .total-bar {
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+    padding-top: 12px;
+    text-align: center;
+    width: 100%;
+  }
+
+  .total-label {
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(232, 217, 160, 0.3);
+  }
+
+  .total-num {
+    font-family: 'Parisienne', cursive;
+    font-size: 22px;
+    color: #e87ba0;
+    text-shadow: 0 0 14px rgba(232, 123, 160, 0.4);
+    margin-top: 2px;
+  }
+
+  @media (max-width: 420px) {
+    .days-count { font-size: 48px; }
+    .severity-grid { gap: 6px 16px; }
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <div class="vault-title">The Vault</div>
+    <div class="days-count" id="daysCount">10</div>
+    <div class="days-label">days without incident</div>
+    <div class="last-incident">last filed: The John Auden Incident</div>
+    <div class="divider">✧ · ✦ · ✧</div>
+    <div class="severity-grid">
+      <div class="severity-row">
+        <span class="severity-label">🔴 Red</span>
+        <span class="severity-num red">10</span>
+      </div>
+      <div class="severity-row">
+        <span class="severity-label">🟠 Orange</span>
+        <span class="severity-num orange">25</span>
+      </div>
+      <div class="severity-row">
+        <span class="severity-label">🟡 Yellow</span>
+        <span class="severity-num yellow">31</span>
+      </div>
+      <div class="severity-row">
+        <span class="severity-label">🟢 Green</span>
+        <span class="severity-num green">24</span>
+      </div>
+      <div class="severity-row" style="grid-column: span 2; justify-content: center; gap: 12px;">
+        <span class="severity-label">🔄 Living</span>
+        <span class="severity-num living">6</span>
+      </div>
+    </div>
+    <div class="total-bar">
+      <div class="total-label">incidents catalogued</div>
+      <div class="total-num">102 and counting</div>
+    </div>
+  </div>
+
+  <script>
+    // Auto-calculate days since last incident
+    const lastIncidentDate = new Date('2026-07-13');
+    const today = new Date();
+    const diffTime = Math.abs(today - lastIncidentDate);
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    document.getElementById('daysCount').textContent = diffDays;
+  </script>
+</body>
+</html>
