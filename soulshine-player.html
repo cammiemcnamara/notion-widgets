@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>soulshine player</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Parisienne&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; background: #191919; }
+  body {
+    font-family: 'Cormorant Garamond', serif;
+    color: #e8d9a0;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+  }
+  button, input, select { font-family: inherit; color: inherit; }
+
+  .frame {
+    width: 100%;
+    max-width: 560px;
+    height: 100%;
+    min-height: 420px;
+    background: #141414;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .head {
+    padding: 14px 18px 4px;
+    text-align: center;
+    position: relative;
+  }
+  .label {
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 3.5px;
+    text-transform: uppercase;
+    color: rgba(232, 217, 160, 0.4);
+  }
+  .brand {
+    font-family: 'Parisienne', cursive;
+    font-size: 30px;
+    line-height: 1.1;
+    color: #e87ba0;
+    text-shadow: 0 0 14px rgba(232, 123, 160, 0.35);
+  }
+
+  /* now playing */
+  .now { padding: 6px 20px 10px; text-align: center; }
+  .title {
+    font-size: 21px;
+    font-weight: 600;
+    line-height: 1.25;
+    text-shadow: 0 0 18px rgba(212, 175, 55, 0.25);
+    overflow-wrap: anywhere;
+  }
+  .sub {
+    margin-top: 2px;
+    font-size: 15px;
+    color: rgba(232, 217, 160, 0.7);
+    overflow-wrap: anywhere;
+  }
+  .chips { margin-top: 6px; display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; min-height: 20px; }
+  .chip {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 20px;
+    border: 1px solid rgba(232, 217, 160, 0.3);
+    color: rgba(232, 217, 160, 0.8);
+  }
+  .chip.v { border-color: var(--vc, rgba(232,217,160,.3)); color: var(--vc, #e8d9a0); }
+  .remark {
+    margin-top: 8px;
+    font-style: italic;
+    font-size: 16px;
+    line-height: 1.35;
+    color: #9db8ff;
+    min-height: 0;
+    overflow-wrap: anywhere;
+  }
+  .remark span { font-family: 'Parisienne', cursive; font-style: normal; color: #e87ba0; font-size: 17px; white-space: nowrap; }
+
+  /* transport */
+  .transport { padding: 4px 18px 10px; }
+  .seekrow { display: flex; align-items: center; gap: 10px; font-size: 13px; color: rgba(232, 217, 160, 0.6); font-variant-numeric: tabular-nums; }
+  input[type=range] {
+    flex: 1; height: 18px; background: transparent; -webkit-appearance: none; appearance: none; cursor: pointer;
+  }
+  input[type=range]::-webkit-slider-runnable-track { height: 3px; background: rgba(232, 217, 160, 0.25); border-radius: 2px; }
+  input[type=range]::-moz-range-track { height: 3px; background: rgba(232, 217, 160, 0.25); border-radius: 2px; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%; background: #e8d9a0; margin-top: -4.5px; }
+  input[type=range]::-moz-range-thumb { width: 12px; height: 12px; border: 0; border-radius: 50%; background: #e8d9a0; }
+  .btns { margin-top: 6px; display: flex; justify-content: center; align-items: center; gap: 14px; }
+  .btn {
+    background: transparent;
+    border: 1px solid rgba(232, 217, 160, 0.3);
+    border-radius: 50%;
+    width: 38px; height: 38px;
+    font-size: 15px;
+    cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .btn:hover { border-color: rgba(232, 217, 160, 0.7); }
+  .btn:focus-visible, .row:focus-visible, .open:focus-visible, .filters input:focus-visible, .filters select:focus-visible { outline: 2px solid #9db8ff; outline-offset: 2px; }
+  .btn.big { width: 50px; height: 50px; font-size: 20px; border-color: rgba(212, 175, 55, 0.7); }
+  .btn.on { background: rgba(232, 123, 160, 0.18); border-color: #e87ba0; color: #e87ba0; }
+  .btn:disabled { opacity: 0.35; cursor: default; }
+
+  /* filters */
+  .filters { display: flex; gap: 6px; padding: 8px 14px; border-top: 1px solid rgba(255,255,255,.08); border-bottom: 1px solid rgba(255,255,255,.08); }
+  .filters input, .filters select {
+    background: #1b1b1b;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 4px;
+    padding: 5px 8px;
+    font-size: 14px;
+    min-width: 0;
+  }
+  .filters input { flex: 2; }
+  .filters select { flex: 1; }
+  .count { padding: 4px 16px; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(232, 217, 160, 0.4); }
+
+  /* list */
+  .list { flex: 1; overflow-y: auto; min-height: 80px; }
+  .row {
+    width: 100%;
+    display: flex; align-items: baseline; gap: 10px;
+    padding: 6px 16px;
+    background: transparent; border: 0; border-bottom: 1px solid rgba(255,255,255,.05);
+    text-align: left; cursor: pointer; font-size: 15px;
+  }
+  .row:hover { background: rgba(255,255,255,.04); }
+  .row.cur { background: rgba(232, 123, 160, 0.12); }
+  .row.missing { opacity: 0.35; cursor: default; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--vc, #555); flex: none; align-self: center; }
+  .rt { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .rt b { font-weight: 600; }
+  .rt i { font-style: normal; color: rgba(232, 217, 160, 0.55); }
+  .rl { flex: none; font-size: 13px; color: rgba(232, 217, 160, 0.5); font-variant-numeric: tabular-nums; }
+
+  /* empty state */
+  .empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 20px 26px; text-align: center; }
+  .empty p { font-size: 16px; line-height: 1.4; color: rgba(232, 217, 160, 0.75); }
+  .empty small { font-size: 13px; color: rgba(232, 217, 160, 0.45); line-height: 1.4; }
+  .open {
+    background: transparent;
+    border: 1px solid rgba(212, 175, 55, 0.7);
+    border-radius: 30px;
+    padding: 9px 22px;
+    font-size: 17px;
+    cursor: pointer;
+  }
+  .open:hover { background: rgba(212, 175, 55, 0.12); }
+  .link { background: none; border: 0; text-decoration: underline; cursor: pointer; font-size: 13px; color: rgba(232, 217, 160, 0.55); }
+  .hidden { display: none !important; }
+  .msg { padding: 0 18px 6px; text-align: center; font-size: 13px; color: #e87ba0; min-height: 0; }
+</style>
+</head>
+<body>
+<div class="frame">
+  <div class="head">
+    <div class="label">the ipod mini, recovered</div>
+    <div class="brand">Soulshine</div>
+  </div>
+
+  <div id="empty" class="empty">
+    <p>The music lives on your laptop. Point me at the folder and I'll play it from there.</p>
+    <button class="open" id="openBtn">Open my music folder</button>
+    <button class="link" id="pickBtn">or pick individual files</button>
+    <small>Choose the folder you copied off the iPod. Nothing is uploaded; the songs never leave this computer. Put <b>soulshine.json</b> in that folder to get titles and verdicts.</small>
+  </div>
+
+  <div id="player" class="hidden" style="display:flex;flex-direction:column;flex:1;min-height:0">
+    <div class="now">
+      <div class="title" id="title">Pick a song</div>
+      <div class="sub" id="sub"></div>
+      <div class="chips" id="chips"></div>
+      <div class="remark" id="remark"></div>
+    </div>
+    <div class="msg" id="msg" role="status"></div>
+    <div class="transport">
+      <div class="seekrow">
+        <span id="cur">0:00</span>
+        <input type="range" id="seek" min="0" max="1000" value="0" aria-label="Seek">
+        <span id="dur">0:00</span>
+      </div>
+      <div class="btns">
+        <button class="btn" id="shuf" title="Shuffle" aria-label="Shuffle" aria-pressed="false">⤮</button>
+        <button class="btn" id="prev" title="Previous" aria-label="Previous">⏮</button>
+        <button class="btn big" id="play" title="Play" aria-label="Play">▶</button>
+        <button class="btn" id="next" title="Next" aria-label="Next">⏭</button>
+        <button class="btn" id="reopen" title="Open a different folder" aria-label="Open a different folder">⏏</button>
+      </div>
+    </div>
+    <div class="filters">
+      <input type="search" id="q" placeholder="Search title, artist, album" aria-label="Search">
+      <select id="fv" aria-label="Filter by verdict"><option value="">All verdicts</option></select>
+      <select id="fg" aria-label="Filter by genre"><option value="">All genres</option></select>
+    </div>
+    <div class="count" id="count"></div>
+    <div class="list" id="list"></div>
+  </div>
+</div>
+
+<input type="file" id="dir" webkitdirectory multiple class="hidden">
+<input type="file" id="files" multiple accept="audio/*,.mp3,.m4a,.wav,.aac,.ogg,.json" class="hidden">
+<audio id="audio" preload="metadata"></audio>
+
+<script>
+(function () {
+  'use strict';
+  var AUDIO_EXT = /\.(mp3|m4a|wav|aac|ogg|oga|flac)$/i;
+  var VCOL = {
+    'Banger': '#7fd4a0',
+    'Solid': '#9db8ff',
+    'Guilty pleasure': '#e87ba0',
+    'Explain yourself Fallon': '#ff7a6b',
+    'Unheard - reserving judgement': '#9a9a9a',
+    'Not a song': '#c9a27a',
+    'Mystery file': '#c39bff'
+  };
+  var $ = function (id) { return document.getElementById(id); };
+  var audio = $('audio');
+  var tracks = [];      // all tracks: {f,t,a,al,y,g,l,v,r,file}
+  var view = [];        // indexes into tracks after filtering
+  var cur = -1;         // index into tracks
+  var shuffle = false;
+  var objUrl = null;
+  var history = [];
+  var failStreak = 0;
+
+  function fmt(s) {
+    if (!isFinite(s) || s < 0) return '0:00';
+    s = Math.floor(s);
+    var h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), x = s % 60;
+    return (h ? h + ':' + (m < 10 ? '0' : '') : '') + m + ':' + (x < 10 ? '0' : '') + x;
+  }
+
+  function loadFiles(fileList) {
+    var all = Array.prototype.slice.call(fileList);
+    var byName = {};
+    var metaFile = null;
+    all.forEach(function (f) {
+      var n = f.name.toLowerCase();
+      if (n === 'soulshine.json') metaFile = f;
+      else if (AUDIO_EXT.test(n) && !(n in byName)) byName[n] = f;
+    });
+    var audioCount = Object.keys(byName).length;
+    if (!audioCount) {
+      alert('No music files found in there. Pick the folder that holds the F00, F01… folders.');
+      return;
+    }
+    var finish = function (meta) {
+      tracks = [];
+      var used = {};
+      (meta || []).forEach(function (m) {
+        var key = String(m.f || '').toLowerCase();
+        var t = { f: m.f, t: m.t || m.f, a: m.a || '', al: m.al || '', y: m.y || '', g: m.g || '', l: m.l || '', v: m.v || '', r: m.r || '', file: byName[key] || null };
+        if (t.file) used[key] = true;
+        tracks.push(t);
+      });
+      Object.keys(byName).sort().forEach(function (key) {
+        if (!used[key]) tracks.push({ f: byName[key].name, t: byName[key].name, a: '', al: '', y: '', g: '', l: '', v: '', r: '', file: byName[key] });
+      });
+      // playable ones first when there is metadata with gaps
+      buildFilters();
+      $('empty').classList.add('hidden');
+      $('player').classList.remove('hidden');
+      applyFilter();
+      var playable = tracks.filter(function (t) { return t.file; }).length;
+      say(meta ? playable + ' of ' + tracks.length + ' songs found on this computer.' : audioCount + ' files loaded. No soulshine.json in that folder, so names only.');
+    };
+    if (metaFile) {
+      metaFile.text().then(function (txt) {
+        var meta = null;
+        try { meta = JSON.parse(txt); } catch (e) { meta = null; }
+        finish(Array.isArray(meta) ? meta : null);
+      }, function () { finish(null); });
+    } else {
+      finish(null);
+    }
+  }
+
+  function buildFilters() {
+    var vs = {}, gs = {};
+    tracks.forEach(function (t) { if (t.v) vs[t.v] = 1; if (t.g) gs[t.g] = 1; });
+    fill($('fv'), 'All verdicts', Object.keys(VCOL).filter(function (v) { return vs[v]; }));
+    fill($('fg'), 'All genres', Object.keys(gs).sort(function (a, b) { return a.toLowerCase() < b.toLowerCase() ? -1 : 1; }));
+    $('fv').classList.toggle('hidden', !Object.keys(vs).length);
+    $('fg').classList.toggle('hidden', !Object.keys(gs).length);
+  }
+  function fill(sel, first, opts) {
+    sel.textContent = '';
+    var o = document.createElement('option'); o.value = ''; o.textContent = first; sel.appendChild(o);
+    opts.forEach(function (v) { var e = document.createElement('option'); e.value = v; e.textContent = v; sel.appendChild(e); });
+  }
+
+  function applyFilter() {
+    var q = $('q').value.trim().toLowerCase();
+    var fv = $('fv').value, fg = $('fg').value;
+    view = [];
+    tracks.forEach(function (t, i) {
+      if (fv && t.v !== fv) return;
+      if (fg && t.g !== fg) return;
+      if (q && (t.t + ' ' + t.a + ' ' + t.al + ' ' + t.f).toLowerCase().indexOf(q) < 0) return;
+      view.push(i);
+    });
+    renderList();
+  }
+
+  function renderList() {
+    var list = $('list');
+    list.textContent = '';
+    var frag = document.createDocumentFragment();
+    view.forEach(function (i) {
+      var t = tracks[i];
+      var row = document.createElement('button');
+      row.className = 'row' + (i === cur ? ' cur' : '') + (t.file ? '' : ' missing');
+      row.dataset.i = i;
+      if (!t.file) { row.disabled = true; row.title = 'File not found in the folder you opened'; }
+      var dot = document.createElement('span'); dot.className = 'dot';
+      if (VCOL[t.v]) dot.style.setProperty('--vc', VCOL[t.v]);
+      var rt = document.createElement('span'); rt.className = 'rt';
+      var b = document.createElement('b'); b.textContent = t.t; rt.appendChild(b);
+      if (t.a) { var a = document.createElement('i'); a.textContent = '  ' + t.a; rt.appendChild(a); }
+      var rl = document.createElement('span'); rl.className = 'rl'; rl.textContent = t.l;
+      row.appendChild(dot); row.appendChild(rt); row.appendChild(rl);
+      frag.appendChild(row);
+    });
+    list.appendChild(frag);
+    $('count').textContent = view.length + (view.length === 1 ? ' song' : ' songs');
+  }
+
+  function say(text) { $('msg').textContent = text || ''; }
+
+  function showNow(t) {
+    $('title').textContent = t.t;
+    $('sub').textContent = [t.a, t.al, t.y].filter(Boolean).join(' · ');
+    var chips = $('chips'); chips.textContent = '';
+    if (t.g) { var g = document.createElement('span'); g.className = 'chip'; g.textContent = t.g; chips.appendChild(g); }
+    if (t.v) {
+      var v = document.createElement('span'); v.className = 'chip v'; v.textContent = t.v;
+      if (VCOL[t.v]) v.style.setProperty('--vc', VCOL[t.v]);
+      chips.appendChild(v);
+    }
+    var r = $('remark'); r.textContent = '';
+    if (t.r) {
+      r.appendChild(document.createTextNode('“' + t.r + '” '));
+      var s = document.createElement('span'); s.textContent = '— Dax'; r.appendChild(s);
+    }
+  }
+
+  function playIndex(i, fromHistory) {
+    var t = tracks[i];
+    if (!t || !t.file) return;
+    if (cur >= 0 && !fromHistory) history.push(cur);
+    if (history.length > 200) history.shift();
+    cur = i;
+    if (objUrl) URL.revokeObjectURL(objUrl);
+    objUrl = URL.createObjectURL(t.file);
+    audio.src = objUrl;
+    showNow(t);
+    say('');
+    var p = audio.play();
+    if (p && p.catch) p.catch(function () {});
+    markCurrent();
+  }
+
+  function markCurrent() {
+    var rows = $('list').children;
+    for (var k = 0; k < rows.length; k++) {
+      var on = Number(rows[k].dataset.i) === cur;
+      rows[k].classList.toggle('cur', on);
+      if (on && rows[k].scrollIntoView) rows[k].scrollIntoView({ block: 'nearest' });
+    }
+  }
+
+  function playable() { return view.filter(function (i) { return tracks[i].file; }); }
+
+  function next() {
+    var p = playable();
+    if (!p.length) return;
+    var pos = p.indexOf(cur), n;
+    if (shuffle && p.length > 1) {
+      do { n = p[Math.floor(Math.random() * p.length)]; } while (n === cur);
+    } else {
+      n = p[(pos + 1) % p.length];
+    }
+    playIndex(n);
+  }
+  function prev() {
+    if (audio.currentTime > 4) { audio.currentTime = 0; return; }
+    if (history.length) { playIndex(history.pop(), true); return; }
+    var p = playable();
+    if (!p.length) return;
+    var pos = p.indexOf(cur);
+    playIndex(p[(pos - 1 + p.length) % p.length], true);
+  }
+  function toggle() {
+    if (cur < 0) { next(); return; }
+    if (audio.paused) { var p = audio.play(); if (p && p.catch) p.catch(function () {}); } else audio.pause();
+  }
+
+  // events
+  $('openBtn').addEventListener('click', function () { $('dir').click(); });
+  $('pickBtn').addEventListener('click', function () { $('files').click(); });
+  $('reopen').addEventListener('click', function () { $('dir').click(); });
+  $('dir').addEventListener('change', function (e) { if (e.target.files.length) loadFiles(e.target.files); e.target.value = ''; });
+  $('files').addEventListener('change', function (e) { if (e.target.files.length) loadFiles(e.target.files); e.target.value = ''; });
+
+  $('list').addEventListener('click', function (e) {
+    var row = e.target.closest ? e.target.closest('.row') : null;
+    if (row && !row.disabled) { failStreak = 0; playIndex(Number(row.dataset.i)); }
+  });
+  $('q').addEventListener('input', applyFilter);
+  $('fv').addEventListener('change', applyFilter);
+  $('fg').addEventListener('change', applyFilter);
+  $('play').addEventListener('click', toggle);
+  $('next').addEventListener('click', function () { failStreak = 0; next(); });
+  $('prev').addEventListener('click', function () { failStreak = 0; prev(); });
+  $('shuf').addEventListener('click', function () {
+    shuffle = !shuffle;
+    $('shuf').classList.toggle('on', shuffle);
+    $('shuf').setAttribute('aria-pressed', String(shuffle));
+  });
+
+  audio.addEventListener('play', function () { $('play').textContent = '⏸'; $('play').setAttribute('aria-label', 'Pause'); });
+  audio.addEventListener('pause', function () { $('play').textContent = '▶'; $('play').setAttribute('aria-label', 'Play'); });
+  audio.addEventListener('playing', function () { failStreak = 0; });
+  audio.addEventListener('ended', next);
+  audio.addEventListener('error', function () {
+    if (cur < 0) return;
+    var name = tracks[cur].t;
+    failStreak++;
+    if (failStreak >= 3) { say('Several files in a row would not play. Stopping here.'); return; }
+    say('“' + name + '” would not play in the browser (old or protected file). Skipping.');
+    setTimeout(next, 900);
+  });
+  var seeking = false;
+  audio.addEventListener('timeupdate', function () {
+    $('cur').textContent = fmt(audio.currentTime);
+    if (!seeking && isFinite(audio.duration) && audio.duration > 0) $('seek').value = Math.round(audio.currentTime / audio.duration * 1000);
+  });
+  audio.addEventListener('durationchange', function () { $('dur').textContent = fmt(audio.duration); });
+  $('seek').addEventListener('input', function () { seeking = true; });
+  $('seek').addEventListener('change', function () {
+    if (isFinite(audio.duration)) audio.currentTime = $('seek').value / 1000 * audio.duration;
+    seeking = false;
+  });
+  document.addEventListener('keydown', function (e) {
+    var tag = (e.target.tagName || '').toLowerCase();
+    if (e.code === 'Space' && tag !== 'input' && tag !== 'select' && tag !== 'button') { e.preventDefault(); toggle(); }
+  });
+})();
+</script>
+</body>
+</html>
